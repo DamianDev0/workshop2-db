@@ -1,0 +1,119 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
+USE `mydb` ;
+
+-- -----------------------------------------------------
+-- Table `mydb`.`teams`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`teams` (
+  `teams_id` INT NOT NULL,
+  `name` VARCHAR(45) NULL,
+  `country` VARCHAR(45) NULL,
+  `foundation_year` DATE NULL,
+  `stadium` VARCHAR(45) NULL,
+  PRIMARY KEY (`teams_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`players`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`players` (
+  `players_id` INT NOT NULL,
+  `name` VARCHAR(45) NULL,
+  `position` VARCHAR(45) NULL,
+  `team_id` INT NOT NULL,
+  PRIMARY KEY (`players_id`),
+  INDEX `fk_team_idx` (`team_id` ASC) VISIBLE,
+  CONSTRAINT `fk_team`
+    FOREIGN KEY (`team_id`)
+    REFERENCES `mydb`.`teams` (`teams_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`tournaments`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`tournaments` (
+  `tournaments_id` INT NOT NULL,
+  `name` VARCHAR(45) NULL,
+  `year` DATE NULL,
+  `host` VARCHAR(45) NULL,
+  PRIMARY KEY (`tournaments_id`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`matches`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`matches` (
+  `matches_id` INT NOT NULL,
+  `date` DATE NULL,
+  `tournament_id` INT NULL,
+  `home_team_id` INT NULL,
+  `away_team_id` INT NULL,
+  PRIMARY KEY (`matches_id`),
+  INDEX `fk_tournament_id_idx` (`tournament_id` ASC) VISIBLE,
+  INDEX `fk_home_away_id_idx` (`away_team_id` ASC) VISIBLE,
+  INDEX `fk_home_team_id_idx` (`home_team_id` ASC, `away_team_id` ASC) VISIBLE,
+  CONSTRAINT `fk_tournament_id`
+    FOREIGN KEY (`tournament_id`)
+    REFERENCES `mydb`.`tournaments` (`tournaments_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_away_team_id`
+    FOREIGN KEY (`away_team_id`)
+    REFERENCES `mydb`.`teams` (`teams_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_home_team_id`
+    FOREIGN KEY (`home_team_id` , `away_team_id`)
+    REFERENCES `mydb`.`teams` (`teams_id` , `teams_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `mydb`.`statistics`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`statistics` (
+  `stad_id` INT NOT NULL,
+  `match_id` INT NULL,
+  `player_id` INT NULL,
+  `goals` INT NULL,
+  `yellow_cards` INT NULL,
+  `red_cards` INT NULL,
+  PRIMARY KEY (`stad_id`),
+  INDEX `fk_player_id_idx` (`player_id` ASC) VISIBLE,
+  INDEX `fk_match_id_idx` (`match_id` ASC) VISIBLE,
+  CONSTRAINT `fk_player_id`
+    FOREIGN KEY (`player_id`)
+    REFERENCES `mydb`.`players` (`players_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_match_id`
+    FOREIGN KEY (`match_id`)
+    REFERENCES `mydb`.`matches` (`matches_id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
